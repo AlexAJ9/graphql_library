@@ -17,7 +17,7 @@ const Authors = (props) => {
     return null
   }
   const authors = []
-  return <Query query={ALL_AUTHORS}>
+  return <Query query={ALL_AUTHORS} pollInterval={2000}>
     {(result) => {
       if (result.loading) {
         return <div>loading...</div>

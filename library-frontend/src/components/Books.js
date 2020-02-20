@@ -19,7 +19,7 @@ const Books = (props) => {
 
 
   const books = []
-  return <Query query={ALL_BOOKS}>
+  return <Query query={ALL_BOOKS} pollInterval={2000}>
     {(result) => {
       if (result.loading) { return <div>loading...</div> }
       return (
