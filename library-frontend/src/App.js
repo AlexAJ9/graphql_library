@@ -1,7 +1,6 @@
 import { gql } from 'apollo-boost'
 import React, { useState } from 'react'
-import { Mutation, ApolloConsumer } from 'react-apollo'
-
+import { useQuery, useMutation } from '@apollo/react-hooks'
 
 import Books from './components/Books'
 import NewBook from './components/NewBook'
@@ -31,29 +30,63 @@ const SET_YEAR = gql`
     } 
 }
 `
+const ALL_AUTHORS = gql`
+{
+  allAuthors{ 
+    name
+    born
+    bookCount
+  }
+}
+`
+
+const ALL_BOOKS = gql`
+  {
+    allBooks{ 
+      title
+      published
+      author
+    }
+  }
+ `
 
 const App = () => {
+
+  const [errorMessage, setErrorMessage] = useState(null)
   const [page, setPage] = useState('authors')
+
+  const authors = useQuery(ALL_AUTHORS)
+  const books = useQuery(ALL_BOOKS)
+
+  const handleError = (err) => {
+    setErrorMessage(err.graphQLErrors[0].message)
+    setTimeout(() => { setErrorMessage(null) }, 10000)
+  }
+
+  const [editAuthor] = useMutation(SET_YEAR, {
+    onError: handleError,
+    refetchQueries: [{ query: ALL_AUTHORS }]
+  })
+
+  const [addBook] = useMutation(CREATE_BOOK, {
+    onError: handleError,
+    refetchQueries: [{ query: ALL_AUTHORS }, { query: ALL_BOOKS }]
+  })
 
   return (
 
     <div>
-
+      {errorMessage && <div style={{ color: 'red' }}>{errorMessage}</div>}
       <div>
         <button onClick={() => setPage('authors')}>authors</button>
         <button onClick={() => setPage('books')}>books</button>
         <button onClick={() => setPage('add')}>add book</button>
       </div>
-      <Mutation mutation={SET_YEAR}>
-        {(editAuthor) => <Authors editAuthor={editAuthor} show={page === 'authors'} />}
-      </Mutation>
-      <Books
-        show={page === 'books'}
-      />
 
-      <Mutation mutation={CREATE_BOOK}>
-        {(addBook) => <NewBook addBook={addBook} show={page === 'add'} />}
-      </Mutation>
+      <Authors result={authors} editAuthor={editAuthor} show={page === 'authors'} />
+      <Books result={books} show={page === 'books'} />
+      <NewBook addBook={addBook} show={page === 'add'} />
+
     </div>
 
   )
