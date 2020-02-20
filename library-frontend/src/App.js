@@ -22,6 +22,15 @@ const CREATE_BOOK = gql`
       }
     }
 `
+const SET_YEAR = gql`
+  mutation setYear($name: String!, $born: Int!){
+    editAuthor(name:$name, born:$born)
+    {
+      name
+      born
+    } 
+}
+`
 
 const App = () => {
   const [page, setPage] = useState('authors')
@@ -35,17 +44,15 @@ const App = () => {
         <button onClick={() => setPage('books')}>books</button>
         <button onClick={() => setPage('add')}>add book</button>
       </div>
-
-      <Authors
-        show={page === 'authors'}
-      />
-
+      <Mutation mutation={SET_YEAR}>
+        {(editAuthor) => <Authors editAuthor={editAuthor} show={page === 'authors'} />}
+      </Mutation>
       <Books
         show={page === 'books'}
       />
 
       <Mutation mutation={CREATE_BOOK}>
-        {( addBook ) => <NewBook addBook={addBook} show={page === 'add'} />}
+        {(addBook) => <NewBook addBook={addBook} show={page === 'add'} />}
       </Mutation>
     </div>
 

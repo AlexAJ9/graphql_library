@@ -13,6 +13,18 @@ const ALL_AUTHORS = gql`{
 `
 
 const Authors = (props) => {
+
+  const [author, setAuhtor] = useState('')
+  const [year, setYear] = useState('')
+
+  const updateYear = async (e) => {
+    e.preventDefault()
+    await props.editAuthor({
+      variables: { name: author, born: year }
+    })
+    setAuhtor('')
+    setYear('')
+  }
   if (!props.show) {
     return null
   }
@@ -45,9 +57,16 @@ const Authors = (props) => {
               )}
             </tbody>
           </table>
+          <h2>Set birthyear</h2>
+          <form onSubmit={updateYear}>
+            <div>author:<input type="text" value={author} onChange={({ target }) => setAuhtor(target.value)}></input></div>
+            <div>year: <input type="text" value={year} onChange={({ target }) => setYear(Number(target.value))}></input></div>
+            <div><button type='submit'>submit</button></div>
+          </form>
         </div>
       )
     }}
+
   </Query>
 }
 
