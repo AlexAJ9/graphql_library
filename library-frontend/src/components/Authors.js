@@ -1,3 +1,4 @@
+import Select from 'react-select'
 import { gql } from 'apollo-boost'
 import { Query } from 'react-apollo'
 import React, { useState } from 'react'
@@ -14,11 +15,21 @@ const ALL_AUTHORS = gql`{
 
 const Authors = (props) => {
 
+  const [authors, setAuhtors] = useState([])
   const [author, setAuhtor] = useState('')
   const [year, setYear] = useState('')
 
+
+  const options = []
+
+  const handleChange = selectedOption => {
+    setAuhtor(selectedOption.value)
+  }
+
   const updateYear = async (e) => {
     e.preventDefault()
+    console.log(author)
+
     await props.editAuthor({
       variables: { name: author, born: year }
     })
@@ -28,12 +39,18 @@ const Authors = (props) => {
   if (!props.show) {
     return null
   }
-  const authors = []
+
   return <Query query={ALL_AUTHORS} pollInterval={2000}>
+
     {(result) => {
       if (result.loading) {
         return <div>loading...</div>
       }
+
+      setAuhtors(result.data.allAuthors)
+      const values = authors.map(x => x.name)
+      values.forEach(x => options.push({ value: x, label: x }))
+
       return (
         <div>
           <h2>authors</h2>
@@ -59,7 +76,7 @@ const Authors = (props) => {
           </table>
           <h2>Set birthyear</h2>
           <form onSubmit={updateYear}>
-            <div>author:<input type="text" value={author} onChange={({ target }) => setAuhtor(target.value)}></input></div>
+            <Select options={options}  onChange={handleChange} />
             <div>year: <input type="text" value={year} onChange={({ target }) => setYear(Number(target.value))}></input></div>
             <div><button type='submit'>submit</button></div>
           </form>
@@ -67,7 +84,7 @@ const Authors = (props) => {
       )
     }}
 
-  </Query>
+  </Query >
 }
 
 export default Authors
