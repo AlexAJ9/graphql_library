@@ -1,6 +1,6 @@
 import { gql } from 'apollo-boost'
 import React, { useState } from 'react'
-import { useQuery, useMutation } from '@apollo/react-hooks'
+import { useQuery, useMutation, useApolloClient } from '@apollo/react-hooks'
 
 import Books from './components/Books'
 import NewBook from './components/NewBook'
@@ -56,6 +56,7 @@ const ALL_BOOKS = gql`
 
 const App = () => {
 
+
   const [errorMessage, setErrorMessage] = useState(null)
   const [page, setPage] = useState('authors')
 
@@ -63,7 +64,7 @@ const App = () => {
   const books = useQuery(ALL_BOOKS)
 
   const handleError = (error) => {
-    setErrorMessage(error.graphQLErrors[0].message)
+    setErrorMessage(error.message)
     setTimeout(() => { setErrorMessage(null) }, 10000)
   }
 

@@ -5,9 +5,9 @@ const Book = require('./models/Book')
 const Author = require('./models/Author')
 
 
-const DB_URI = 'mongodb+srv://admin_alex:775gloglo666@clusterapp-jwzwe.gcp.mongodb.net/library_db?retryWrites=true&w=majority'
+require('dotenv').config()
 
-mongoose.connect(DB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(process.env.DB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {
         console.log('connected to MongoDB')
     })
@@ -100,7 +100,7 @@ const typeDefs = gql`
     type Book {
     title: String!,
     author: Author!,
-    published: String!,
+    published: Int!,
     genres:[String!]!
     }
 
@@ -171,8 +171,8 @@ const resolvers = {
 
             const book = new Book({ ...args, author: authorInDb })
             try {
-                await book.save()
-                return book
+                const bookToSave = await book.save()
+                return bookToSave
             }
             catch (err) {
                 throw new UserInputError(err.message, { invalidArgs: args })

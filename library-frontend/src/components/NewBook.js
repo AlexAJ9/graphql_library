@@ -2,14 +2,14 @@ import React, { useState } from 'react'
 import { useApolloClient } from '@apollo/react-hooks'
 
 const NewBook = (props) => {
-  
+
   const [title, setTitle] = useState('')
   const [author, setAuhtor] = useState('')
   const [published, setPublished] = useState('')
   const [genre, setGenre] = useState('')
   const [genres, setGenres] = useState([])
 
-  
+
   if (!props.show) {
     return null
   }
