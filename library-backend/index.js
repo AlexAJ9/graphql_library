@@ -76,13 +76,6 @@ const resolvers = {
         allAuthors: async () => { return await Author.find({}) },
         allBooks: async (root, args) => {
             return await Book.find({}).populate('author')
-            // if (args.genre && args.author) {
-            //     let x = books.filter(x => x.author === args.author)
-            //     return x.filter(x => x.genres.includes(args.genre))
-            // }
-            // if (args.genre) { return books.filter(x => x.genres.includes(args.genre)) }
-            // if (args.author) { return books.filter(x => x.author === args.author) }
-            // return books
         },
         me: (root, args, context) => { return context.currentUser }
     },
@@ -96,7 +89,7 @@ const resolvers = {
         },
         login: async (root, args) => {
             const user = await User.findOne({ username: args.username })
-            if (!user || args.password == 'french79') {
+            if (!user || args.password !== 'french79') {
                 throw new UserInputError('Invalid credentials!')
             }
             const uToken = { username: user.username, id: user._id }
@@ -130,15 +123,6 @@ const resolvers = {
             catch (err) {
                 throw new UserInputError(err.message, { invalidArgs: args })
             }
-            // let book = books.find(x => x.title === args.title)
-            // if (!book) {
-            //     book = { ...args, id: uuid() }
-            //     books = books.concat(book)
-            //     return book
-            // }
-            // const updatedBook = { title: args.title, author: args.author, published: args.published, genres: args.genres }
-            // books = books.map(book => book.title === args.title ? updatedBook : book)
-            // return updatedBook
         },
         editAuthor: async (root, args) => {
             const user = context.currentUser
@@ -154,11 +138,6 @@ const resolvers = {
             catch (err) {
                 throw new UserInputError(err.message, { invalidArgs: args })
             }
-            // const author = authors.find(x => x.name === args.name)
-            // if (!author) { return null }
-            // const authorToUpdate = { ...author, born: args.born }
-            // authors = authors.map(author => author.name === args.name ? authorToUpdate : author)
-            // return authorToUpdate
         }
     }
 }
