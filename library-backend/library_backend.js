@@ -1,8 +1,9 @@
-const { ApolloServer, gql } = require('apollo-server')
-const uuid = require('uuid')
 const mongoose = require('mongoose')
-const Author = require('./models/Author')
+const { ApolloServer, UserInputError, gql } = require('apollo-server')
+
 const Book = require('./models/Book')
+const Author = require('./models/Author')
+
 
 const DB_URI = 'mongodb+srv://admin_alex:775gloglo666@clusterapp-jwzwe.gcp.mongodb.net/library_db?retryWrites=true&w=majority'
 
@@ -154,13 +155,28 @@ const resolvers = {
     },
     Mutation: {
         addBook: async (root, args) => {
-            // const authorExists = await Author.findOne({ name: args.author })
 
-            const author = new Author({ "name": args.author })
-            await author.save()
-            const book = new Book({ ...args, author: author })
-            return book.save()
+            const authorExists = await Author.findOne({ name: args.author })
+            if (!authorExists) {
+                const author = new Author({ "name": args.author })
+                try {
+                    await author.save()
+                }
+                catch (err) {
+                    throw new UserInputError(err.message, { invalidArgs: args })
+                }
+            }
 
+            const authorInDb = await Author.findOne({ name: args.author })
+
+            const book = new Book({ ...args, author: authorInDb })
+            try {
+                await book.save()
+                return book
+            }
+            catch (err) {
+                throw new UserInputError(err.message, { invalidArgs: args })
+            }
 
             // let book = books.find(x => x.title === args.title)
             // if (!book) {
@@ -174,9 +190,14 @@ const resolvers = {
         },
         editAuthor: async (root, args) => {
             const authorToEdit = await Author.findOne({ name: args.name })
-
             authorToEdit.born = args.born
-            return await authorToEdit.save()
+            try {
+                await authorToEdit.save()
+                return authorToEdit
+            }
+            catch (err) {
+                throw new UserInputError(err.message, { invalidArgs: args })
+            }
             // const author = authors.find(x => x.name === args.name)
             // if (!author) { return null }
             // const authorToUpdate = { ...author, born: args.born }
