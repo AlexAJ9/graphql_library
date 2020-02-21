@@ -58,8 +58,8 @@ const App = () => {
   const authors = useQuery(ALL_AUTHORS)
   const books = useQuery(ALL_BOOKS)
 
-  const handleError = (err) => {
-    setErrorMessage(err.graphQLErrors[0].message)
+  const handleError = (error) => {
+    setErrorMessage(error.graphQLErrors[0].message)
     setTimeout(() => { setErrorMessage(null) }, 10000)
   }
 
