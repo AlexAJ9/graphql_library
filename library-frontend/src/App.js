@@ -7,17 +7,19 @@ import NewBook from './components/NewBook'
 import Authors from './components/Authors'
 
 const CREATE_BOOK = gql`
-    mutation createBook($title: String!, $author: String!, $published: Int!, $genres: [String!]!) {
+    mutation addBook($title: String!, $author: String!, $published: Int!, $genres: [String!]!) {
       addBook(
         title: $title,
         author: $author,
         published: $published,
         genres: $genres
       ){
-        title
-        author
-        published
-        genres
+        title,
+        published,
+        genres,
+        author{
+          name
+        }
       }
     }
 `
@@ -45,7 +47,9 @@ const ALL_BOOKS = gql`
     allBooks{ 
       title
       published
-      author
+      author{
+        name
+      }
     }
   }
  `

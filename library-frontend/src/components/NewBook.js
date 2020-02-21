@@ -9,7 +9,6 @@ const NewBook = (props) => {
   const [genre, setGenre] = useState('')
   const [genres, setGenres] = useState([])
 
-  const client = useApolloClient()
   
   if (!props.show) {
     return null
