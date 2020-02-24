@@ -114,7 +114,7 @@ const App = () => {
           <button onClick={() => setPage('books')}>books</button>
           <button onClick={() => setPage('login')}>login</button>
         </div>
-        <Login setToken={(token) => setToken(token)} login={login} show={page === 'login'} />
+        <Login setToken={(token) => setToken(token)} login={login} show={page === 'login'} setPage={(page)=>setPage(page)}/>
         <Authors result={authors} editAuthor={editAuthor} show={page === 'authors'} />
         <Books result={books} show={page === 'books'} />
       </div>
