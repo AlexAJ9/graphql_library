@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { useQuery, useMutation, useApolloClient } from '@apollo/react-hooks'
 
 import Books from './components/Books'
+import Login from './components/Login'
 import NewBook from './components/NewBook'
 import Authors from './components/Authors'
 
@@ -53,15 +54,28 @@ const ALL_BOOKS = gql`
     }
   }
  `
-
+const LOGIN = gql`
+mutation login($username: String!, $password: String!){
+  login(username: $username, password: $password){
+    value
+  }
+}
+`
 const App = () => {
-
+  const client = useApolloClient()
 
   const [errorMessage, setErrorMessage] = useState(null)
   const [page, setPage] = useState('authors')
+  const [token, setToken] = useState(null)
 
   const authors = useQuery(ALL_AUTHORS)
   const books = useQuery(ALL_BOOKS)
+
+  const logout = () => {
+    window.localStorage.clear()
+    setToken(null)
+    client.resetStore()
+  }
 
   const handleError = (error) => {
     setErrorMessage(error.message)
@@ -78,6 +92,22 @@ const App = () => {
     refetchQueries: [{ query: ALL_AUTHORS }, { query: ALL_BOOKS }]
   })
 
+  const [login] = useMutation(LOGIN, { onError: handleError })
+
+  if (!token) {
+    return (
+      <div>
+        <div>
+          <button onClick={() => setPage('authors')}>authors</button>
+          <button onClick={() => setPage('books')}>books</button>
+          <button onClick={() => setPage('login')}>login</button>
+        </div>
+        <Login setToken={(token) => setToken(token)} login={login} show={page === 'login'} />
+        <Authors result={authors} editAuthor={editAuthor} show={page === 'authors'} />
+        <Books result={books} show={page === 'books'} />
+      </div>
+    )
+  }
   return (
 
     <div>
@@ -86,6 +116,7 @@ const App = () => {
         <button onClick={() => setPage('authors')}>authors</button>
         <button onClick={() => setPage('books')}>books</button>
         <button onClick={() => setPage('add')}>add book</button>
+        <button onClick={logout} >logout</button>
       </div>
 
       <Authors result={authors} editAuthor={editAuthor} show={page === 'authors'} />
