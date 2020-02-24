@@ -48,6 +48,7 @@ const ALL_BOOKS = gql`
     allBooks{ 
       title
       published
+      genres
       author{
         name
       }
@@ -76,7 +77,7 @@ const App = () => {
     setToken(null)
     client.resetStore()
   }
-
+ 
   const handleError = (error) => {
     setErrorMessage(error.message)
     setTimeout(() => { setErrorMessage(null) }, 10000)
@@ -97,6 +98,7 @@ const App = () => {
   if (!token) {
     return (
       <div>
+        {errorMessage && <div style={{ color: 'red' }}>{errorMessage}</div>}
         <div>
           <button onClick={() => setPage('authors')}>authors</button>
           <button onClick={() => setPage('books')}>books</button>

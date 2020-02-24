@@ -124,7 +124,7 @@ const resolvers = {
                 throw new UserInputError(err.message, { invalidArgs: args })
             }
         },
-        editAuthor: async (root, args) => {
+        editAuthor: async (root, args,context) => {
             const user = context.currentUser
             if (!user) {
                 throw new AuthenticationError('You have to be logged in to perform this action!')
@@ -147,9 +147,11 @@ const server = new ApolloServer({
     resolvers,
     context: async ({ req }) => {
         const auth = req ? req.headers.authorization : null
-        if (auth && auth.toLocaleLowerCase.startsWith('bearer')) {
-            const decodedToken = jwt.verify(auth.toSubstring(7), process.env.SECRET)
+        if (auth && auth.toLowerCase().startsWith('bearer')) {
+            const decodedToken = jwt.verify(auth.substring(7), process.env.SECRET)
             const currentUser = await User.findById(decodedToken.id)
+            console.log(currentUser);
+            
             return { currentUser }
         }
 
