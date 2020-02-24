@@ -6,7 +6,7 @@ import Books from './components/Books'
 import Login from './components/Login'
 import NewBook from './components/NewBook'
 import Authors from './components/Authors'
-
+import Recommended from './components/Recommended'
 const CREATE_BOOK = gql`
     mutation addBook($title: String!, $author: String!, $published: Int!, $genres: [String!]!) {
       addBook(
@@ -62,6 +62,15 @@ mutation login($username: String!, $password: String!){
   }
 }
 `
+const USER = gql`
+{
+  me{
+    username
+    favouriteGenre
+  }
+}
+
+`
 const App = () => {
   const client = useApolloClient()
 
@@ -71,13 +80,14 @@ const App = () => {
 
   const authors = useQuery(ALL_AUTHORS)
   const books = useQuery(ALL_BOOKS)
+  const user = useQuery(USER)
 
   const logout = () => {
     window.localStorage.clear()
     setToken(null)
     client.resetStore()
   }
- 
+
   const handleError = (error) => {
     setErrorMessage(error.message)
     setTimeout(() => { setErrorMessage(null) }, 10000)
@@ -117,14 +127,15 @@ const App = () => {
       <div>
         <button onClick={() => setPage('authors')}>authors</button>
         <button onClick={() => setPage('books')}>books</button>
+        <button onClick={() => setPage('recommended')}>recommended</button>
         <button onClick={() => setPage('add')}>add book</button>
         <button onClick={logout} >logout</button>
       </div>
 
       <Authors result={authors} editAuthor={editAuthor} show={page === 'authors'} />
-      <Books result={books} show={page === 'books'} />
+      <Recommended user={user} books={books} show={page === 'recommended'} />
       <NewBook addBook={addBook} show={page === 'add'} />
-
+      <Books result={books} show={page === 'books'} />
     </div>
 
   )
