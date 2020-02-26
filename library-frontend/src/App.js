@@ -103,9 +103,17 @@ const App = () => {
   useSubscription(BOOK_ADDED, {
     onSubscriptionData: ({ subscriptionData }) => {
       window.alert(`Book: ${subscriptionData.data.bookAdded.title} added.`)
+      updateCache(subscriptionData.data.bookAdded)
     }
   })
-
+  const updateCache = (addedBook) => {
+    const includeIn = (set, object) => set.map(x => x.title).includes(object.title)
+    const dataInCache = client.readQuery({ query: ALL_BOOKS })
+    if (!includeIn(dataInCache.allBooks, addedBook)) {
+      dataInCache.allBooks.push(addedBook)
+      client.writeQuery({ query: ALL_BOOKS, data: dataInCache })
+    }
+  }
   const logout = () => {
     window.localStorage.clear()
     setToken(null)
@@ -124,7 +132,10 @@ const App = () => {
 
   const [addBook] = useMutation(CREATE_BOOK, {
     onError: handleError,
-    refetchQueries: [{ query: ALL_AUTHORS }, { query: ALL_BOOKS }]
+    update: (store, response) => {
+      console.log(response.data.addBook)
+      updateCache(response.data.addBook)
+    }
   })
 
   const [login] = useMutation(LOGIN, { onError: handleError })
