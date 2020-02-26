@@ -1,12 +1,13 @@
 import { gql } from 'apollo-boost'
 import React, { useState } from 'react'
-import { useQuery, useMutation, useApolloClient } from '@apollo/react-hooks'
+import { useQuery, useMutation, useSubscription, useApolloClient } from '@apollo/react-hooks'
 
 import Books from './components/Books'
 import Login from './components/Login'
 import NewBook from './components/NewBook'
 import Authors from './components/Authors'
 import Recommended from './components/Recommended'
+
 const CREATE_BOOK = gql`
     mutation addBook($title: String!, $author: String!, $published: Int!, $genres: [String!]!) {
       addBook(
@@ -69,7 +70,24 @@ const USER = gql`
     favouriteGenre
   }
 }
+`
 
+const BOOK_DETAILS = gql`
+fragment BookDetails on Book {
+  title
+  published
+  genres
+  author {
+    name
+  }
+}`
+const BOOK_ADDED = gql`
+subscription {    
+  bookAdded {
+    ...BookDetails
+   }  
+  }  
+  ${BOOK_DETAILS}
 `
 const App = () => {
   const client = useApolloClient()
@@ -81,6 +99,12 @@ const App = () => {
   const authors = useQuery(ALL_AUTHORS)
   const books = useQuery(ALL_BOOKS)
   const user = useQuery(USER)
+
+  useSubscription(BOOK_ADDED, {
+    onSubscriptionData: ({ subscriptionData }) => {
+      window.alert(`Book: ${subscriptionData.data.bookAdded.title} added.`)
+    }
+  })
 
   const logout = () => {
     window.localStorage.clear()
@@ -114,7 +138,7 @@ const App = () => {
           <button onClick={() => setPage('books')}>books</button>
           <button onClick={() => setPage('login')}>login</button>
         </div>
-        <Login setToken={(token) => setToken(token)} login={login} show={page === 'login'} setPage={(page)=>setPage(page)}/>
+        <Login setToken={(token) => setToken(token)} login={login} show={page === 'login'} setPage={(page) => setPage(page)} />
         <Authors result={authors} editAuthor={editAuthor} show={page === 'authors'} />
         <Books result={books} show={page === 'books'} />
       </div>
